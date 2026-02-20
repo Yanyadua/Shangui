@@ -1,0 +1,26 @@
+基于以下用户文本,提取所有活动:
+
+用户文本:
+```
+{{ user_text }}
+```
+
+请输出包含所有活动的 JSON 数组,每个活动包含:
+- type: 活动类型(必须是6种类型之一)
+- topic: 活动主题(简短描述)
+- description: 活动详细描述
+- duration_estimate: 估计时长(小时)
+
+输出格式:
+```json
+{
+  "activities": [
+    {
+      "type": "Activity Type",
+      "topic": "Topic name",
+      "description": "Detailed description",
+      "duration_estimate": 2.0
+    }
+  ]
+}
+```

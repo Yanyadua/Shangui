@@ -1,0 +1,18 @@
+对以下活动进行分类和评估:
+
+活动描述: {{ activity_description }}
+估计时长: {{ duration_estimate }} 小时
+
+请输出:
+```json
+{
+  "type": "确定的Activity Type(6种之一)",
+  "topic": "简短主题",
+  "intensity": 0.8,
+  "duration_estimate": {{ duration_estimate }}
+}
+```
+
+注意:
+- type 必须严格匹配6种活动类型
+- intensity 基于活动的认知负荷和专注度
