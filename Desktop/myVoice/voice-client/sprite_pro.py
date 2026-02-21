@@ -437,7 +437,7 @@ class GrowthSpriteWidget(QWidget):
         """鼠标按下事件"""
         if event.button() == Qt.LeftButton:
             # 检查是否点击在精灵上
-            if self.sprite.geometry().contains(event.pos()):
+            if self.sprite.geometry().contains(event.position().toPoint()):
                 # 切换菜单显示
                 if self.menu_visible:
                     self.hide_circular_menu()
