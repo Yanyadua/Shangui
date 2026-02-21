@@ -19,8 +19,10 @@ import math
 
 try:
     from services.api_client import APIClient
+    from ui.sprite_widget import SpriteImageWidget
 except ImportError:
     from voice_client.services.api_client import APIClient
+    from voice_client.ui.sprite_widget import SpriteImageWidget
 
 
 class AudioRecorder(QThread):
@@ -98,46 +100,6 @@ class ProcessWorker(QThread):
             self.error.emit(str(e))
 
 
-class CircularSprite(QWidget):
-    """圆形精灵组件"""
-
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.setMinimumSize(120, 120)
-        self.emoji = "🌱"
-        self.animation_progress = 0.0
-
-    def set_emoji(self, emoji: str):
-        self.emoji = emoji
-        self.update()
-
-    def paintEvent(self, event):
-        painter = QPainter(self)
-        painter.setRenderHint(QPainter.Antialiasing)
-
-        # 创建渐变背景
-        gradient = QRadialGradient(60, 60, 10, 60, 55)
-        gradient.setColorAt(0, QColor(255, 255, 255))
-        gradient.setColorAt(1, QColor(200, 230, 200))
-        painter.setBrush(QBrush(gradient))
-
-        # 绘制圆形
-        painter.setPen(QPen(QColor(100, 180, 100), 3))
-        painter.drawEllipse(10, 10, 100, 100)
-
-        # 绘制emoji
-        font = QFont("Apple Color Emoji", 50)
-        painter.setFont(font)
-        painter.drawText(self.rect(), Qt.AlignCenter, self.emoji)
-
-        # 添加呼吸动画效果
-        painter.setBrush(QBrush(QColor(255, 255, 255, 30)))
-        painter.setPen(Qt.NoPen)
-        pulse_size = 5 + math.sin(self.animation_progress) * 3
-        painter.drawEllipse(60 - pulse_size * 8, 60 - pulse_size * 8,
-                           pulse_size * 16, pulse_size * 16)
-
-
 class GrowthSpriteWidget(QWidget):
     """成长精灵主窗口"""
 
@@ -168,8 +130,8 @@ class GrowthSpriteWidget(QWidget):
         self.sprite_layout.setContentsMargins(15, 20, 15, 15)
         self.sprite_layout.setSpacing(15)
 
-        # 精灵圆形显示
-        self.sprite = CircularSprite()
+        # 精灵图片显示
+        self.sprite = SpriteImageWidget()
         self.sprite_layout.addWidget(self.sprite, 0, Qt.AlignCenter)
 
         # 状态文字
@@ -334,11 +296,8 @@ class GrowthSpriteWidget(QWidget):
         self.move(current_pos.x(), current_pos.y() + self._float_offset)
 
     def animate_sprite(self):
-        """精灵动画"""
-        self.sprite.animation_progress += 0.1
-        if self.sprite.animation_progress > math.pi * 2:
-            self.sprite.animation_progress = 0
-        self.sprite.update()
+        """精灵动画 - 图片精灵不需要内部动画，保留空函数避免报错"""
+        pass
 
     def setup_tray(self):
         """设置系统托盘"""
@@ -393,7 +352,7 @@ class GrowthSpriteWidget(QWidget):
     def start_recording(self):
         """开始录音"""
         self.status_label.setText("正在录音...")
-        self.sprite.set_emoji("🎙")
+        self.sprite.set_state("recording")
         self.process_btn.setEnabled(False)
 
         self.recorder = AudioRecorder()
@@ -409,14 +368,14 @@ class GrowthSpriteWidget(QWidget):
             self.record_btn.setChecked(False)
             self.recorder.stop()
             self.status_label.setText("处理中...")
-            self.sprite.set_emoji("💭")
+            self.sprite.set_state("thinking")
 
     def on_recording_finished(self, audio_path: str):
         """录音完成"""
         self.audio_file_path = audio_path
         self.process_btn.setEnabled(True)
         self.status_label.setText("录音完成")
-        self.sprite.set_emoji("😊")
+        self.sprite.set_state("normal")
 
     def process_audio(self):
         """处理音频"""
@@ -425,7 +384,7 @@ class GrowthSpriteWidget(QWidget):
 
         self.process_btn.setEnabled(False)
         self.status_label.setText("AI分析中...")
-        self.sprite.set_emoji("🧠")
+        self.sprite.set_state("thinking")
 
         worker = ProcessWorker(self.audio_file_path, self.api_client)
         worker.finished.connect(self.on_process_finished)
@@ -435,7 +394,7 @@ class GrowthSpriteWidget(QWidget):
     def on_process_finished(self, result: dict):
         """处理完成"""
         self.status_label.setText("分析完成!")
-        self.sprite.set_emoji("🎉")
+        self.sprite.set_state("success")
 
         # 格式化结果
         lines = []
@@ -457,14 +416,14 @@ class GrowthSpriteWidget(QWidget):
     def on_process_error(self, error_msg: str):
         """处理错误"""
         self.status_label.setText("处理失败")
-        self.sprite.set_emoji("😢")
+        self.sprite.set_state("error")
         self.result_text.setText(f"错误: {error_msg}")
         self.process_btn.setEnabled(True)
 
     def reset_state(self):
         """重置状态"""
         self.status_label.setText("准备就绪")
-        self.sprite.set_emoji("🌱")
+        self.sprite.set_state("normal")
         self.process_btn.setEnabled(True)
         self.audio_file_path = None
 
