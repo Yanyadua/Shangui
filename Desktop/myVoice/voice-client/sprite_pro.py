@@ -371,8 +371,8 @@ class GrowthSpriteWidget(QWidget):
     def stop_recording(self):
         """停止录音"""
         if self.recorder:
-            self.record_btn.setChecked(False)
             self.recorder.stop()
+            self.record_btn.setChecked(False)  # 确保按钮状态同步
             self.status_label.setText("处理中...")
             self.sprite.set_state("thinking")
 
@@ -382,6 +382,7 @@ class GrowthSpriteWidget(QWidget):
         self.process_btn.setEnabled(True)
         self.status_label.setText("录音完成")
         self.sprite.set_state("normal")
+        self.recorder = None  # 清除recorder引用
 
     def process_audio(self):
         """处理音频"""
@@ -493,10 +494,15 @@ class GrowthSpriteWidget(QWidget):
 
     def on_menu_record(self):
         """菜单录音按钮回调"""
-        if self.record_btn.isChecked():
+        # 检查是否正在录音
+        if hasattr(self, 'recorder') and self.recorder is not None:
+            # 正在录音，停止
             self.stop_recording()
         else:
+            # 没有录音，开始
             self.start_recording()
+            # 同步按钮状态
+            self.record_btn.setChecked(True)
 
     def on_menu_analyze(self):
         """菜单分析按钮回调"""
