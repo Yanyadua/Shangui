@@ -363,6 +363,7 @@ class GrowthSpriteWidget(QWidget):
 
         self.recorder = AudioRecorder()
         self.recorder.finished.connect(self.on_recording_finished)
+        self.recorder.is_recording = True  # 重要：设置为True才开始录音
         self.recorder.start()
 
         # 60秒后自动停止

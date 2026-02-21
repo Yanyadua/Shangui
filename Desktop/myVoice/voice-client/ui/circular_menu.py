@@ -68,9 +68,12 @@ class CircularMenu(QWidget):
         self.center_pos = center_pos
         self.parent_widget = parent_widget
 
+        # center_pos是相对于父窗口的，需要转换为屏幕坐标
+        parent_global_pos = parent_widget.mapToGlobal(center_pos)
+
         # 计算菜单位置（使其居中于精灵）
-        menu_x = center_pos.x() - self.width() // 2
-        menu_y = center_pos.y() - self.height() // 2
+        menu_x = parent_global_pos.x() - self.width() // 2
+        menu_y = parent_global_pos.y() - self.height() // 2
         self.move(menu_x, menu_y)
 
         # 计算按钮位置（圆形分布）
