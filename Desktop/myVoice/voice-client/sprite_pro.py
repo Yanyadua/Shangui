@@ -470,7 +470,7 @@ class GrowthSpriteWidget(QWidget):
 
     def mouseMoveEvent(self, event):
         """鼠标移动 - 拖动"""
-        if event.buttons() == Qt.LeftButton:
+        if event.buttons() == Qt.LeftButton and hasattr(self, 'drag_position'):
             pos = event.globalPosition() - self.drag_position
             self.move(pos.toPoint())
             event.accept()
