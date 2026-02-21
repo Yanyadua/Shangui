@@ -8,7 +8,11 @@ from PySide6.QtCore import QThread, Signal
 import pyaudio
 import wave
 
-from ..services.api_client import APIClient
+# 修复导入路径
+try:
+    from ..services.api_client import APIClient
+except ImportError:
+    from services.api_client import APIClient
 
 
 class AudioRecorder(QThread):
