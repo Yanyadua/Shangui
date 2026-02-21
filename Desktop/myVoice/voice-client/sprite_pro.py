@@ -20,9 +20,11 @@ import math
 try:
     from services.api_client import APIClient
     from ui.sprite_widget import SpriteImageWidget
+    from ui.circular_menu import CircularMenu
 except ImportError:
     from voice_client.services.api_client import APIClient
     from voice_client.ui.sprite_widget import SpriteImageWidget
+    from voice_client.ui.circular_menu import CircularMenu
 
 
 class AudioRecorder(QThread):
@@ -113,6 +115,10 @@ class GrowthSpriteWidget(QWidget):
         # 动画相关
         self._float_offset = 0
         self._float_direction = 1
+
+        # 圆形菜单
+        self.circular_menu = CircularMenu(self)
+        self.menu_visible = False
 
         self.init_ui()
         self.set_window_style()
@@ -428,10 +434,20 @@ class GrowthSpriteWidget(QWidget):
         self.audio_file_path = None
 
     def mousePressEvent(self, event):
-        """鼠标按下 - 拖动"""
+        """鼠标按下事件"""
         if event.button() == Qt.LeftButton:
-            self.drag_position = event.globalPosition() - self.frameGeometry().topLeft()
-            event.accept()
+            # 检查是否点击在精灵上
+            if self.sprite.geometry().contains(event.pos()):
+                # 切换菜单显示
+                if self.menu_visible:
+                    self.hide_circular_menu()
+                else:
+                    self.show_circular_menu()
+            else:
+                # 记录拖动位置
+                self.drag_position = event.globalPosition() - self.frameGeometry().topLeft()
+                event.accept()
+
 
     def mouseMoveEvent(self, event):
         """鼠标移动 - 拖动"""
@@ -450,6 +466,60 @@ class GrowthSpriteWidget(QWidget):
             QSystemTrayIcon.Information,
             2000
         )
+
+    def show_circular_menu(self):
+        """显示圆形菜单"""
+        # 获取精灵在屏幕上的位置
+        sprite_global_pos = self.sprite.mapToGlobal(
+            QPoint(self.sprite.width() // 2, self.sprite.height() // 2)
+        )
+        # 转换为相对于父窗口的位置
+        menu_pos = self.mapFromGlobal(sprite_global_pos)
+
+        self.circular_menu.show_menu(menu_pos, self)
+        self.menu_visible = True
+        self.setFocus()  # 获取焦点，以便检测点击外部
+
+    def hide_circular_menu(self):
+        """隐藏圆形菜单"""
+        self.circular_menu.hide_menu()
+        self.menu_visible = False
+
+    def focusOutEvent(self, event):
+        """失去焦点时隐藏菜单"""
+        super().focusOutEvent(event)
+        if self.menu_visible:
+            self.hide_circular_menu()
+
+    def on_menu_record(self):
+        """菜单录音按钮回调"""
+        if self.record_btn.isChecked():
+            self.stop_recording()
+        else:
+            self.start_recording()
+
+    def on_menu_analyze(self):
+        """菜单分析按钮回调"""
+        self.process_audio()
+
+    def on_menu_settings(self):
+        """菜单设置按钮回调"""
+        # TODO: 实现设置功能
+        self.result_text.setText("设置功能开发中...")
+
+    def on_menu_help(self):
+        """菜单帮助按钮回调"""
+        help_text = """
+Growth Engine 桌面精灵
+
+🎤 点击录音按钮开始录音
+🚀 录音结束后点击分析查看成长
+💡 点击精灵身体显示菜单
+
+更多帮助: https://github.com/Yanyadua/Shangui
+        """
+        self.result_text.setText(help_text)
+
 
 
 if __name__ == "__main__":
