@@ -379,6 +379,12 @@ class GrowthSpriteWidget(QWidget):
 
     def on_recording_finished(self, audio_path: str):
         """录音完成"""
+        import os
+        file_exists = os.path.exists(audio_path)
+        file_size = os.path.getsize(audio_path) if file_exists else 0
+        print(f"[录音完成] 音频文件: {audio_path}")
+        print(f"[录音完成] 文件存在: {file_exists}, 大小: {file_size} 字节")
+
         self.audio_file_path = audio_path
         self.process_btn.setEnabled(True)
         self.status_label.setText("录音完成")
@@ -387,13 +393,24 @@ class GrowthSpriteWidget(QWidget):
 
     def process_audio(self):
         """处理音频"""
+        print(f"[分析] 开始处理音频: {self.audio_file_path}")
+
         if not self.audio_file_path:
+            print("[分析] 错误: 没有音频文件路径")
+            self.result_text.setText("请先录音再分析")
+            return
+
+        import os
+        if not os.path.exists(self.audio_file_path):
+            print(f"[分析] 错误: 文件不存在 {self.audio_file_path}")
+            self.result_text.setText("音频文件不存在，请重新录音")
             return
 
         self.process_btn.setEnabled(False)
         self.status_label.setText("AI分析中...")
         self.sprite.set_state("thinking")
 
+        print(f"[分析] 启动工作线程...")
         worker = ProcessWorker(self.audio_file_path, self.api_client)
         worker.finished.connect(self.on_process_finished)
         worker.error.connect(self.on_process_error)
