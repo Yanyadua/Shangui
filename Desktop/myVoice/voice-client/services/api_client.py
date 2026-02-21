@@ -17,15 +17,31 @@ class APIClient:
         if not file_path.exists():
             raise FileNotFoundError(f"Audio file not found: {audio_file_path}")
 
+        # 根据文件扩展名确定MIME类型
+        mime_type = "audio/mpeg"  # 默认mp3
+        if file_path.suffix == ".wav":
+            mime_type = "audio/wav"
+        elif file_path.suffix == ".mp3":
+            mime_type = "audio/mpeg"
+        elif file_path.suffix == ".m4a":
+            mime_type = "audio/mp4"
+        elif file_path.suffix == ".ogg":
+            mime_type = "audio/ogg"
+
+        print(f"[API] 上传音频: {file_path.name} ({mime_type})")
+
         with open(file_path, "rb") as audio_file:
-            files = {"audio_file": (file_path.name, audio_file, "audio/mpeg")}
+            files = {"audio_file": (file_path.name, audio_file, mime_type)}
             response = requests.post(
                 f"{self.api_base}/process",
                 files=files,
                 timeout=300  # 5分钟超时
             )
+            print("[API] 响应状态:", response.status_code)
             response.raise_for_status()
-            return response.json()
+            result = response.json()
+            print("[API] 处理完成")
+            return result
 
     def get_records(self, date_filter: str = None) -> list:
         """获取历史记录"""
