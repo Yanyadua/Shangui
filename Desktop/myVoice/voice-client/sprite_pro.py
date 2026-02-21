@@ -96,9 +96,15 @@ class ProcessWorker(QThread):
 
     def run(self):
         try:
+            print(f"[Worker] 开始处理音频: {self.audio_path}")
             result = self.api_client.process_audio(self.audio_path)
+            print(f"[Worker] 处理成功")
             self.finished.emit(result)
         except Exception as e:
+            import traceback
+            print(f"[Worker] 处理失败: {e}")
+            print("[Worker] 错误跟踪:")
+            traceback.print_exc()
             self.error.emit(str(e))
 
 
@@ -440,6 +446,11 @@ class GrowthSpriteWidget(QWidget):
 
     def on_process_error(self, error_msg: str):
         """处理错误"""
+        import traceback
+        print(f"[错误] 处理失败: {error_msg}")
+        print("[错误] 详细信息:")
+        traceback.print_exc()
+
         self.status_label.setText("处理失败")
         self.sprite.set_state("error")
         self.result_text.setText(f"错误: {error_msg}")
