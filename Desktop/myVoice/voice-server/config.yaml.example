@@ -1,0 +1,44 @@
+# API Keys (示例配置)
+api_keys:
+  deepseek: "YOUR_DEEPSEEK_API_KEY"  # 请替换为你的 DeepSeek API key
+  # whisper: "YOUR_WHISPER_API_KEY"  # 本地 Whisper 不需要 API key
+
+# Whisper 配置
+whisper:
+  model_size: "base"  # 可选: tiny, base, small, medium, large
+  device: "cpu"       # 可选: cpu, cuda (如有 NVIDIA GPU)
+
+# 服务配置
+server:
+  host: "127.0.0.1"
+  port: 8000
+  cors_origins:
+    - "http://localhost:5173"
+
+# 数据库
+database:
+  path: "data/growth_engine.db"
+
+# 规则引擎权重
+weights:
+  Learning Input:
+    knowledge_intake: 0.15
+    execution: 0.05
+  Active Practice:
+    skill_fluency: 0.15
+    execution: 0.1
+  Problem Solving:
+    complexity_handling: 0.18
+    execution: 0.08
+  System Improvement:
+    system_thinking: 0.2
+    complexity_handling: 0.1
+  Production Output:
+    execution: 0.15
+    skill_fluency: 0.1
+  Energy Management:
+    execution: 0.05
+
+# 计算参数
+calculation:
+  max_delta_per_dimension: 0.3
