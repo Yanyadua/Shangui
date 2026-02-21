@@ -24,6 +24,13 @@ async def process_audio(audio_file: UploadFile = File(...)):
     处理音频文件: 转写 -> 解析 -> 计算
     """
 
+    def progress_callback(step: str, message: str):
+        """推理进度回调 - 输出到终端"""
+        print(f"[{step}] {message}")
+
+    # 创建带进度回调的agent
+    agent_with_progress = GrowthAnalysisAgent(progress_callback=progress_callback)
+
     # 保存临时文件
     with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp_file:
         content = await audio_file.read()
@@ -34,8 +41,8 @@ async def process_audio(audio_file: UploadFile = File(...)):
         # Step 1: Whisper 转写
         transcribed_text = await whisper_client.transcribe(tmp_file_path)
 
-        # Step 2: Agent 解析活动
-        activities = await agent.analyze(transcribed_text)
+        # Step 2: Agent 解析活动（使用带进度回调的agent）
+        activities = await agent_with_progress.analyze(transcribed_text)
 
         # Step 3: 计算_delta
         delta = calculator.calculate(activities)
