@@ -9,7 +9,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from PySide6.QtWidgets import (QApplication, QWidget, QVBoxLayout, QHBoxLayout,
                                 QPushButton, QLabel, QTextEdit, QSystemTrayIcon,
                                 QMenu, QGraphicsDropShadowEffect, QFrame)
-from PySide6.QtCore import Qt, QThread, Signal, QTimer, QPoint, QProperty, QEasingCurve
+from PySide6.QtCore import Qt, QThread, Signal, QTimer, QPoint
 from PySide6.QtGui import (QPixmap, QPainter, QBrush, QColor, QFont, QIcon,
                         QAction, QRadialGradient, QPen, QPolygon)
 import asyncio
@@ -164,9 +164,9 @@ class GrowthSpriteWidget(QWidget):
 
         # 精灵区域
         sprite_container = QWidget()
-        sprite_layout = QVBoxLayout(sprite_container)
-        sprite_layout.setContentsMargins(15, 20, 15, 15)
-        sprite_layout.setSpacing(15)
+        self.sprite_layout = QVBoxLayout(sprite_container)
+        self.sprite_layout.setContentsMargins(15, 20, 15, 15)
+        self.sprite_layout.setSpacing(15)
 
         # 精灵圆形显示
         self.sprite = CircularSprite()
@@ -184,7 +184,7 @@ class GrowthSpriteWidget(QWidget):
                 padding: 5px;
             }
         """)
-        sprite_layout.addWidget(self.status_label)
+        self.sprite_layout.addWidget(self.status_label)
 
         # 控制按钮区域
         controls = QWidget()
